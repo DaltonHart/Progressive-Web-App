@@ -1,4 +1,10 @@
-const CACHE_STATIC_NAME = 'static-v14';
+// import scripts allows to bring in other files and break up our code
+// import idb to handle index data base functions
+importScripts('/src/js/idb.js');
+// improt utility for all db functionality
+importScripts('/src/js/utility.js');
+
+const CACHE_STATIC_NAME = 'static-v17';
 const CACHE_DYNAMIC_NAME = 'dynamic-v3';
 const CACHED_STATIC_URLS = [
   '/',
@@ -77,12 +83,14 @@ self.addEventListener('fetch', event => {
   // cache then network strategy for selected url
   if (event.request.url.indexOf(url) > -1) {
     event.respondWith(
-      caches.open(CACHE_DYNAMIC_NAME).then(cache => {
-        return fetch(event.request).then(res => {
-          // trimCache(CACHE_DYNAMIC_NAME, CACHE_LIMIT);
-          cache.put(event.request, res.clone());
-          return res;
+      fetch(event.request).then(res => {
+        const clonesRes = res.clone();
+        clonesRes.json().then(data => {
+          for (key in data) {
+            writeData('posts', data[key]);
+          }
         });
+        return res;
       })
     );
   }
