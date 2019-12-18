@@ -47,3 +47,17 @@ const clearAllData = storeName => {
     return tx.complete;
   });
 };
+
+// deletes a single item from store with given id
+const deleteItemFromData = (storeName, id) => {
+  return dbPromise.then(db => {
+    // create a transaction - args => store to connect, with what you will do
+    const tx = db.transaction(storeName, 'readwrite');
+    // access store
+    const store = tx.objectStore(storeName);
+    // deletes with given id
+    store.delete(id);
+    // return and close transaction for db integrity
+    return tx.complete;
+  });
+};
