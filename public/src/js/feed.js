@@ -5,8 +5,8 @@ const closeCreatePostModalButton = document.querySelector(
 );
 const sharedMomentsArea = document.querySelector('#shared-moments');
 const form = document.querySelector('form');
-const title = document.querySelector('#title');
-const location = document.querySelector('#location');
+const titleInput = document.querySelector('#title');
+const locationInput = document.querySelector('#location');
 
 const openCreatePostModal = () => {
   createPostArea.style.display = 'block';
@@ -113,11 +113,64 @@ if ('indexedDB' in window) {
   });
 }
 
+const sendData = () => {
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      id: new Date().toISOString(),
+      title: titleInput.value,
+      location: locationInput.value,
+      image:
+        'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
+    })
+  })
+    .then(res => {
+      console.log(res);
+      updateUi();
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
 form.addEventListener('submit', function(e) {
   e.preventDefault();
-  if (title.value.trim() === '' || location.value.trim() === '') {
+  if (titleInput.value.trim() === '' || locationInput.value.trim() === '') {
     alert('Please enter valid data!');
     return;
   }
   closeCreatePostModal();
+  // validate sw and sync are available in the browser
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    // due to sw not being able to normally sync this type of request from the form we create a sync event
+    navigator.serviceWorker.ready.then(sw => {
+      const post = {
+        id: new Date().toISOString(),
+        title: titleInput.value,
+        location: locationInput.value
+      };
+      // write the post to the indexDb in the sync table
+      writeData('sync-posts', post)
+        .then(() => {
+          // we register a sync event for the sw to listen for
+          return sw.sync.register('sync-new-posts').then(() => {
+            // once sync has occured take that info and update the dom
+            const snackbarContainer = document.querySelector(
+              '#confirmation-toast'
+            );
+            const data = { message: 'Your message was saved for sync!' };
+            snackbarContainer.MaterialSnackbar.showSnackbar(data);
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+  } else {
+    sendData();
+  }
 });

@@ -1,9 +1,16 @@
 // arguments for .open => db name - version - callback
 const dbPromise = idb.open('posts-store', 1, function(db) {
+  /* ---- Tables for data ---- */
   // if posts table in db does not exist create it
   if (!db.objectStoreNames.contains('posts')) {
     // creates a table of posts with inde path of id
     db.createObjectStore('posts', { keyPath: 'id' });
+  }
+  /* ---- Sync table for offline sync  ---- */
+  // if posts-sync table in db does not exist create it
+  if (!db.objectStoreNames.contains('sync-posts')) {
+    // creates a table of posts with inde path of id
+    db.createObjectStore('sync-posts', { keyPath: 'id' });
   }
 });
 

@@ -190,3 +190,45 @@ self.addEventListener('fetch', event => {
 //     })
 //   );
 // });
+
+// Add listener for internet connectivity
+self.addEventListener('sync', event => {
+  console.log('[Service Worker] background sync..');
+  // look for tag we set on sw register sync
+  if (event.tag === 'sync-new-posts') {
+    console.log('[Service Worker] sync new post');
+    // wait to complete event with the following
+    event.waitUntil(
+      // get all synced posts
+      readAllData('sync-posts').then(data => {
+        // loop through all and send to db
+        for (let dt of data) {
+          fetch('https://pwagram-88a38.firebaseio.com/posts.json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            body: JSON.stringify({
+              id: dt.id,
+              title: dt.title,
+              location: dt.location,
+              image:
+                'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
+            })
+          })
+            .then(res => {
+              console.log(res);
+              // if res is ok delete from sync db
+              if (res.ok) {
+                deleteItemFromData('sync-posts', dt.id);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        }
+      })
+    );
+  }
+});
