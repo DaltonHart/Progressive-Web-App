@@ -221,7 +221,7 @@ self.addEventListener('sync', event => {
               console.log(res);
               // if res is ok delete from sync db
               if (res.ok) {
-                deleteItemFromData('sync-posts', dt.id);
+                deleteItemFromData('sync-posts', dt.id); // does not work properly due to async execution
               }
             })
             .catch(err => {
