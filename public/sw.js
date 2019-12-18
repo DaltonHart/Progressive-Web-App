@@ -4,7 +4,7 @@ importScripts('/src/js/idb.js');
 // improt utility for all db functionality
 importScripts('/src/js/utility.js');
 
-const CACHE_STATIC_NAME = 'static-v17';
+const CACHE_STATIC_NAME = 'static-v18';
 const CACHE_DYNAMIC_NAME = 'dynamic-v3';
 const CACHED_STATIC_URLS = [
   '/',
@@ -85,11 +85,15 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(event.request).then(res => {
         const clonesRes = res.clone();
-        clonesRes.json().then(data => {
-          for (key in data) {
-            writeData('posts', data[key]);
-          }
-        });
+        clearAllData('posts')
+          .then(() => {
+            return clonesRes.json();
+          })
+          .then(data => {
+            for (key in data) {
+              writeData('posts', data[key]);
+            }
+          });
         return res;
       })
     );

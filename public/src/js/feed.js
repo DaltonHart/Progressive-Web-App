@@ -97,22 +97,12 @@ fetch(url)
     updateUi(dataArr);
   });
 
-// NOTE cache with network fallback
-if ('caches' in window) {
-  caches
-    .match(url)
-    .then(res => {
-      if (res) {
-        return res.json();
-      }
-    })
-    .then(data => {
-      if (!networkDataRecieved) {
-        let dataArr = [];
-        for (let key in data) {
-          dataArr.push(data[key]);
-        }
-        updateUi(dataArr);
-      }
-    });
+// NOTE indexDb with network fallback
+if ('indexedDB' in window) {
+  readAllData('posts').then(data => {
+    if (!networkDataRecieved) {
+      console.log('from Cache', data);
+      updateUi(data);
+    }
+  });
 }
