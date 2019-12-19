@@ -4,6 +4,13 @@ const cors = require('cors')({ origin: true });
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
+const serviceAccount = require('./pwagram-88a38-firebase-adminsdk-vqjot-c333aae033.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://pwagram-88a38.firebaseio.com/'
+});
+
 exports.storePostData = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
     admin
