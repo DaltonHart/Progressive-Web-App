@@ -257,3 +257,19 @@ self.addEventListener('notificationclick', event => {
 self.addEventListener('notificationclick', event => {
   console.log('Notificatino was closed', event);
 });
+
+// listener for push
+self.addEventListener('push', event => {
+  console.log('[SW] Push notification recieved', event);
+  let data = { title: 'New!', content: 'Something new happened!' };
+  if (event.data) {
+    data = JSON.parse(event.data.text());
+  }
+  const options = {
+    body: data.content,
+    icon: '/src/images/icons/app-icon-96x96.png',
+    badge: '/src/images/icons/app-icon-96x96.png'
+  };
+  // this will send the notification
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});

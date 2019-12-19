@@ -36,9 +36,10 @@ exports.storePostData = functions.https.onRequest((req, res) => {
           .once('value');
       })
       .then(subscriptions => {
+        console.log(subscriptions);
         subscriptions.forEach(sub => {
           const pushConfig = {
-            endPoint: sub.val().endpoint,
+            endpoint: sub.val().endpoint,
             keys: {
               auth: sub.val().keys.auth,
               p256dh: sub.val().keys.p256dh
