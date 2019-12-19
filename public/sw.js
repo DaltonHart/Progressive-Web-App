@@ -4,7 +4,7 @@ importScripts('/src/js/idb.js');
 // improt utility for all db functionality
 importScripts('/src/js/utility.js');
 
-const CACHE_STATIC_NAME = 'static-v20';
+const CACHE_STATIC_NAME = 'static-v21';
 const CACHE_DYNAMIC_NAME = 'dynamic-v5';
 const CACHED_STATIC_URLS = [
   '/',
@@ -203,25 +203,30 @@ self.addEventListener('sync', event => {
       readAllData('sync-posts').then(data => {
         // loop through all and send to db
         for (let dt of data) {
-          fetch('https://pwagram-88a38.firebaseio.com/posts.json', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json'
-            },
-            body: JSON.stringify({
-              id: dt.id,
-              title: dt.title,
-              location: dt.location,
-              image:
-                'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
-            })
-          })
+          fetch(
+            'https://us-central1-pwagram-88a38.cloudfunctions.net/storePostData',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify({
+                id: dt.id,
+                title: dt.title,
+                location: dt.location,
+                image:
+                  'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
+              })
+            }
+          )
             .then(res => {
               console.log(res);
               // if res is ok delete from sync db
               if (res.ok) {
-                deleteItemFromData('sync-posts', dt.id); // does not work properly due to async execution
+                res.json().then(resData => {
+                  deleteItemFromData('sync-posts', resData.id);
+                });
               }
             })
             .catch(err => {

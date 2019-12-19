@@ -4,8 +4,8 @@ const cors = require('cors')({ origin: true });
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
-exports.storePostData = functions.https.onRequest((request, response) => {
-  cors((req, res) => {
+exports.storePostData = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
     admin
       .database()
       .ref('posts')
