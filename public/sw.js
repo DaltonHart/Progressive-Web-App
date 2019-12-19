@@ -222,8 +222,10 @@ self.addEventListener('sync', event => {
           )
             .then(res => {
               // if res is ok delete from sync db
+              console.log(res.ok);
               if (res.ok) {
                 res.json().then(data => {
+                  console.log('deleteing', data);
                   deleteItemFromData('sync-posts', data.id);
                 });
               }
