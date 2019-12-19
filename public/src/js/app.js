@@ -33,7 +33,13 @@ const displayConfirmationNotification = () => {
   // through service worker
   if ('serviceWorker' in navigator) {
     const options = {
-      body: 'You are now going to recieve notifications from PWAGram!'
+      body: 'You are now going to recieve notifications from PWAGram!', // inside the content of the notification
+      icon: '/src/images/icons/app-icon-96x96.png', // icon to show to right or left of content
+      image: '/src/images/sf-boat.jpg', // will show up in the content
+      dir: 'ltr', // direction text is read
+      lang: 'en-US', // BCP 47
+      vibration: [100, 50, 200], // in ms vibrate, pause , vibrate
+      badge: '/src/images/icons/app-icon-96x96.png' // badge to show in android
     };
     navigator.serviceWorker.ready.then(swreg => {
       swreg.showNotification('Subscribed! [SW]', options);
