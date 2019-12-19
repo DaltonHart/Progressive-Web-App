@@ -236,3 +236,24 @@ self.addEventListener('sync', event => {
     );
   }
 });
+
+// listener for notifications
+self.addEventListener('notificationclick', event => {
+  const notification = event.notification;
+  const action = event.action;
+
+  console.log(notification, '[SW] notification handle');
+
+  if (action === 'id') {
+    console.log('confirm was chosen');
+    notification.close();
+  } else {
+    console.log(action);
+    notification.close();
+  }
+});
+
+// listener for closing notification
+self.addEventListener('notificationclick', event => {
+  console.log('Notificatino was closed', event);
+});
