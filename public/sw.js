@@ -222,7 +222,7 @@ self.addEventListener('sync', event => {
           )
             .then(res => {
               // if res is ok delete from sync db
-              console.log(res.ok);
+              console.log(res.ok, res);
               if (res.ok) {
                 res.json().then(data => {
                   console.log('deleteing', data);
