@@ -251,7 +251,20 @@ self.addEventListener('notificationclick', event => {
     notification.close();
   } else {
     console.log(action);
-    notification.close();
+    event.waitUntil(
+      clients.matchAll().then(clis => {
+        let client = clis.find(c => {
+          return c.visibilityState === 'visible';
+        });
+        if (client !== 'undefined') {
+          client.navigate('http://localhost:8080');
+          client.focus();
+        } else {
+          clients.openWindow('http://localhost:8080');
+        }
+        notification.close();
+      })
+    );
   }
 });
 
@@ -262,7 +275,7 @@ self.addEventListener('notificationclick', event => {
 
 // listener for push
 self.addEventListener('push', event => {
-  console.log('[SW] Push notification recieved', event);
+  console.log('[SW] Push notification recieved', event, event.data.text());
   let data = { title: 'New!', content: 'Something new happened!' };
   if (event.data) {
     data = JSON.parse(event.data.text());

@@ -49,7 +49,11 @@ exports.storePostData = functions.https.onRequest((req, res) => {
           webpush
             .sendNotification(
               pushConfig,
-              JSON.stringify({ title: 'New Post!', content: 'New Post Added!' })
+              JSON.stringify({
+                title: 'New Post!',
+                content: 'New Post Added!',
+                openUrl: '/help'
+              })
             )
             .catch(error => {
               console.log(error);
