@@ -257,10 +257,10 @@ self.addEventListener('notificationclick', event => {
           return c.visibilityState === 'visible';
         });
         if (client !== 'undefined') {
-          client.navigate('http://localhost:8080');
+          client.navigate(notification.data.url);
           client.focus();
         } else {
-          clients.openWindow('http://localhost:8080');
+          clients.openWindow(notification.data.url);
         }
         notification.close();
       })
@@ -276,14 +276,22 @@ self.addEventListener('notificationclick', event => {
 // listener for push
 self.addEventListener('push', event => {
   console.log('[SW] Push notification recieved', event, event.data.text());
-  let data = { title: 'New!', content: 'Something new happened!' };
+  let data = {
+    title: 'New!',
+    content: 'Something new happened!',
+    openUrl: '/'
+  };
   if (event.data) {
     data = JSON.parse(event.data.text());
   }
   const options = {
     body: data.content,
     icon: '/src/images/icons/app-icon-96x96.png',
-    badge: '/src/images/icons/app-icon-96x96.png'
+    badge: '/src/images/icons/app-icon-96x96.png',
+    // data can be any data you want
+    data: {
+      url: data.openUrl
+    }
   };
   // this will send the notification
   event.waitUntil(self.registration.showNotification(data.title, options));

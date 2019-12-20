@@ -7,11 +7,47 @@ const sharedMomentsArea = document.querySelector('#shared-moments');
 const form = document.querySelector('form');
 const titleInput = document.querySelector('#title');
 const locationInput = document.querySelector('#location');
+const videoPlayer = document.querySelector('#player');
+const canvasElement = document.querySelector('#canvas');
+const captureButton = document.querySelector('#capture-btn');
+const imagePicker = document.querySelector('#image-picker');
+const imagePickerArea = document.querySelector('#pick-image');
+
+const initialMedia = () => {
+  if (!('mediaDevices' in navigator)) {
+    navigator.mediaDevices = {};
+  }
+
+  if (!('getUserMedia' in navigator.mediaDevices)) {
+    navigator.mediaDevices.getUserMedia = constraints => {
+      const getUserMedia =
+        navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+      if (!getUserMedia) {
+        return Promise.reject(new Error('getUserMedia not available'));
+      }
+
+      return new Promise((resolve, reject) => {
+        getUserMedia.call(navigator, constraints, resolve, reject);
+      });
+    };
+  }
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
+    .then(stream => {
+      videoPlayer.srcObject = stream;
+      videoPlayer.style.display = block;
+    })
+    .catch(err => {
+      imagePickerArea.style.display = 'block';
+    });
+};
 
 const openCreatePostModal = () => {
   createPostArea.style.display = 'block';
   setTimeout(() => {
     createPostArea.style.transform = 'translateY(0)';
+    initialMedia();
   }, 1);
   if (deferredPrompt) {
     deferredPrompt.prompt();
@@ -32,6 +68,9 @@ const openCreatePostModal = () => {
 
 const closeCreatePostModal = () => {
   createPostArea.style.transform = 'translateY(100vh)';
+  imagePickerArea.style.display = 'none';
+  videoPlayer.style.display = 'none';
+  canvasElement.style.display = 'none';
 };
 
 shareImageButton.addEventListener('click', openCreatePostModal);
