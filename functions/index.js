@@ -84,7 +84,11 @@ exports.storePostData = functions.https.onRequest((request, response) => {
                   '/o/' +
                   encodeURIComponent(uploadedFile.name) +
                   '?alt=media&token=' +
-                  uuid
+                  uuid,
+                rawLocation: {
+                  lat: fields.rawLocationLat,
+                  lng: fields.rawLocationLng
+                }
               })
               .then(() => {
                 // vapid details are => email, public, private

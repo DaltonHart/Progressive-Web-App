@@ -13,6 +13,43 @@ const captureButton = document.querySelector('#capture-btn');
 const imagePicker = document.querySelector('#image-picker');
 const imagePickerArea = document.querySelector('#pick-image');
 let picture;
+const locationBtn = document.querySelector('#location-btn');
+const locationLoader = document.querySelector('#location-loader');
+let fetchedLocation;
+
+location.addEventListener('click', event => {
+  if (!('geolocation' in navigator)) {
+    return;
+  }
+  locationBtn.style.display = 'none';
+  locationLoader.style.display = 'block';
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      locationBtn.style.display = 'inline';
+      locationLoader.style.display = 'none';
+      fetchedLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+      locationInput.value = position.coords.latitude;
+      document.querySelector('#manual-location').classList.add('is-focused');
+      console.log(position);
+    },
+    error => {
+      console.log(error);
+      locationBtn.style.display = 'inline';
+      locationLoader.style.display = 'none';
+      fetchedLocation = null;
+    },
+    { timeout: 7000 }
+  );
+});
+
+const initiaLocation = () => {
+  if (!('geolocation' in navigator)) {
+    locationBtn.style.display = 'none';
+  }
+};
 
 const initialMedia = () => {
   if (!('mediaDevices' in navigator)) {
@@ -71,6 +108,7 @@ const openCreatePostModal = () => {
   setTimeout(() => {
     createPostArea.style.transform = 'translateY(0)';
     initialMedia();
+    initiaLocation();
   }, 1);
   if (deferredPrompt) {
     deferredPrompt.prompt();
@@ -94,6 +132,8 @@ const closeCreatePostModal = () => {
   imagePickerArea.style.display = 'none';
   videoPlayer.style.display = 'none';
   canvasElement.style.display = 'none';
+  locationBtn.style.display = 'inline';
+  locationLoader.style.display = 'none';
 };
 
 shareImageButton.addEventListener('click', openCreatePostModal);
@@ -182,6 +222,8 @@ const sendData = () => {
   postData.append('title', titleInput.value);
   postData.append('location', locationInput.value);
   postData.append('file', picture, `${id}.png`);
+  postData.append('rawLocationLat', fetchedLocation.latitude);
+  postData.append('rawLocationLng', fetchedLocation.longitude);
 
   fetch('https://us-central1-pwagram-88a38.cloudfunctions.net/storePostData', {
     method: 'POST',
@@ -196,7 +238,7 @@ const sendData = () => {
     });
 };
 
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', e => {
   e.preventDefault();
   if (titleInput.value.trim() === '' || locationInput.value.trim() === '') {
     alert('Please enter valid data!');
@@ -211,7 +253,8 @@ form.addEventListener('submit', function(e) {
         id: new Date().toISOString(),
         title: titleInput.value,
         location: locationInput.value,
-        picture: picture
+        picture: picture,
+        rawLocation: fetchedLocation
       };
       // write the post to the indexDb in the sync table
       writeData('sync-posts', post)

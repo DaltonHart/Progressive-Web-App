@@ -4,7 +4,7 @@ importScripts('/src/js/idb.js');
 // improt utility for all db functionality
 importScripts('/src/js/utility.js');
 
-const CACHE_STATIC_NAME = 'static-v24';
+const CACHE_STATIC_NAME = 'static-v25';
 const CACHE_DYNAMIC_NAME = 'dynamic-v6';
 const CACHED_STATIC_URLS = [
   '/',
@@ -209,6 +209,8 @@ self.addEventListener('sync', event => {
           postData.append('title', dt.title);
           postData.append('location', dt.location);
           postData.append('file', dt.picture, `${dt.id}.png`);
+          postData.append('rawLocationLat', dt.rawLocation.latitude);
+          postData.append('rawLocationLng', dt.rawLocation.longitude);
           fetch(
             'https://us-central1-pwagram-88a38.cloudfunctions.net/storePostData',
             {
