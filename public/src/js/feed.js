@@ -15,9 +15,9 @@ const imagePickerArea = document.querySelector('#pick-image');
 let picture;
 const locationBtn = document.querySelector('#location-btn');
 const locationLoader = document.querySelector('#location-loader');
-let fetchedLocation;
+let fetchedLocation = { latitude: 0, longitude: 0 };
 
-location.addEventListener('click', event => {
+locationBtn.addEventListener('click', event => {
   if (!('geolocation' in navigator)) {
     return;
   }
@@ -39,7 +39,7 @@ location.addEventListener('click', event => {
       console.log(error);
       locationBtn.style.display = 'inline';
       locationLoader.style.display = 'none';
-      fetchedLocation = null;
+      fetchedLocation = { latitude: 0, longitude: 0 };
     },
     { timeout: 7000 }
   );
@@ -134,6 +134,12 @@ const closeCreatePostModal = () => {
   canvasElement.style.display = 'none';
   locationBtn.style.display = 'inline';
   locationLoader.style.display = 'none';
+  captureButton.style.display = 'inline';
+  if (videoPlayer.srcObject) {
+    videoPlayer.srcObject.getVideoTracks().forEach(track => {
+      track.stop();
+    });
+  }
 };
 
 shareImageButton.addEventListener('click', openCreatePostModal);
