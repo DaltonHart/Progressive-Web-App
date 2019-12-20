@@ -1,30 +1,35 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const cors = require('cors')({ origin: true });
-const webpush = require('web-push');
-const fs = require('fs');
-const UUID = require('uuid-v4');
-const os = require('os');
-const Busboy = require('busboy');
-const path = require('path');
+var functions = require('firebase-functions');
+var admin = require('firebase-admin');
+var cors = require('cors')({ origin: true });
+var webpush = require('web-push');
+var formidable = require('formidable');
+var fs = require('fs');
+var UUID = require('uuid-v4');
+var os = require('os');
+var Busboy = require('busboy');
+var path = require('path');
+
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
+//
 
-const serviceAccount = require('./pwagram-88a38-firebase-adminsdk-vqjot-c333aae033.json');
-const gcconfig = {
-  projectId: 'pwagram-88a38',
-  keyFilename: 'pwagram-88a38-firebase-adminsdk-vqjot-c333aae033.json'
+var serviceAccount = require('./pwagram-fb-key.json');
+
+var gcconfig = {
+  projectId: 'YOUR_PROJECT_ID',
+  keyFilename: 'pwagram-fb-key.json'
 };
-const gcs = require('@google-cloud/storage')(gcconfig);
+
+var gcs = require('@google-cloud/storage')(gcconfig);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://pwagram-88a38.firebaseio.com/'
+  databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com/'
 });
 
-exports.storePostData = functions.https.onRequest((req, res) => {
-  cors(request, response, () => {
-    const uuid = UUID();
+exports.storePostData = functions.https.onRequest(function(request, response) {
+  cors(request, response, function() {
+    var uuid = UUID();
 
     const busboy = new Busboy({ headers: request.headers });
     // These objects will store the values (file + fields) extracted from busboy
@@ -67,7 +72,7 @@ exports.storePostData = functions.https.onRequest((req, res) => {
             }
           }
         },
-        (err, uploadedFile) => {
+        function(err, uploadedFile) {
           if (!err) {
             admin
               .database()
@@ -84,7 +89,7 @@ exports.storePostData = functions.https.onRequest((req, res) => {
                   '?alt=media&token=' +
                   uuid
               })
-              .then(() => {
+              .then(function() {
                 // vapid details are => email, public, private
                 webpush.setVapidDetails(
                   'mailto:daltonhart.j@gmail.com',
@@ -96,9 +101,9 @@ exports.storePostData = functions.https.onRequest((req, res) => {
                   .ref('subscriptions')
                   .once('value');
               })
-              .then(subscriptions => {
-                subscriptions.forEach(sub => {
-                  const pushConfig = {
+              .then(function(subscriptions) {
+                subscriptions.forEach(function(sub) {
+                  var pushConfig = {
                     endpoint: sub.val().endpoint,
                     keys: {
                       auth: sub.val().keys.auth,
@@ -115,7 +120,7 @@ exports.storePostData = functions.https.onRequest((req, res) => {
                         openUrl: '/help'
                       })
                     )
-                    .catch(err => {
+                    .catch(function(err) {
                       console.log(err);
                     });
                 });
@@ -123,7 +128,7 @@ exports.storePostData = functions.https.onRequest((req, res) => {
                   .status(201)
                   .json({ message: 'Data stored', id: fields.id });
               })
-              .catch(err => {
+              .catch(function(err) {
                 response.status(500).json({ error: err });
               });
           } else {
