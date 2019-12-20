@@ -15,14 +15,16 @@ const gcconfig = {
   projectId: 'pwagram-88a38',
   keyFilename: 'pwagram-88a38-firebase-adminsdk-vqjot-c333aae033.json'
 };
-const gcs = require('@google-cloud/storage')(gcconfig);
+const { Storage } = require('@google-cloud/storage');
+
+const gcs = new Storage(gcconfig);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://pwagram-88a38.firebaseio.com/'
 });
 
-exports.storePostData = functions.https.onRequest((req, res) => {
+exports.storePostData = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
     const uuid = UUID();
 
