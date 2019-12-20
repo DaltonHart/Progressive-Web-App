@@ -12,6 +12,7 @@ const canvasElement = document.querySelector('#canvas');
 const captureButton = document.querySelector('#capture-btn');
 const imagePicker = document.querySelector('#image-picker');
 const imagePickerArea = document.querySelector('#pick-image');
+let picture;
 
 const initialMedia = () => {
   if (!('mediaDevices' in navigator)) {
@@ -36,12 +37,30 @@ const initialMedia = () => {
     .getUserMedia({ video: true })
     .then(stream => {
       videoPlayer.srcObject = stream;
-      videoPlayer.style.display = block;
+      videoPlayer.style.display = 'block';
     })
     .catch(err => {
       imagePickerArea.style.display = 'block';
     });
 };
+
+captureButton.addEventListener('click', event => {
+  canvasElement.style.display = 'block';
+  videoPlayer.style.display = 'none';
+  captureButton.style.display = 'none';
+  const context = canvasElement.getContext('2d');
+  context.drawImage(
+    videoPlayer,
+    0,
+    0,
+    canvas.width,
+    videoPlayer.videoHeight / (videoPlayer.videoWidth / canvas.width)
+  );
+  videoPlayer.srcObject.getVideoTracks().forEach(track => {
+    track.stop();
+  });
+  picture = dataURItoBlob(canvasElement.toDataURL());
+});
 
 const openCreatePostModal = () => {
   createPostArea.style.display = 'block';
@@ -153,19 +172,16 @@ if ('indexedDB' in window) {
 }
 
 const sendData = () => {
+  const id = new Date().toISOString();
+  const postData = new FormData();
+  postData.append('id', id);
+  postData.append('title', titleInput.value);
+  postData.append('location', locationInput.value);
+  postData.append('file', picture, `${id}.png`);
+
   fetch('https://us-central1-pwagram-88a38.cloudfunctions.net/storePostData', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify({
-      id: new Date().toISOString(),
-      title: titleInput.value,
-      location: locationInput.value,
-      image:
-        'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
-    })
+    body: postData
   })
     .then(res => {
       console.log(res);
@@ -190,7 +206,8 @@ form.addEventListener('submit', function(e) {
       const post = {
         id: new Date().toISOString(),
         title: titleInput.value,
-        location: locationInput.value
+        location: locationInput.value,
+        picture: picture
       };
       // write the post to the indexDb in the sync table
       writeData('sync-posts', post)

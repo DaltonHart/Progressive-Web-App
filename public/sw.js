@@ -4,7 +4,7 @@ importScripts('/src/js/idb.js');
 // improt utility for all db functionality
 importScripts('/src/js/utility.js');
 
-const CACHE_STATIC_NAME = 'static-v22';
+const CACHE_STATIC_NAME = 'static-v23';
 const CACHE_DYNAMIC_NAME = 'dynamic-v5';
 const CACHED_STATIC_URLS = [
   '/',
@@ -203,21 +203,16 @@ self.addEventListener('sync', event => {
       readAllData('sync-posts').then(data => {
         // loop through all and send to db
         for (let dt of data) {
+          const postData = new FormData();
+          postData.append('id', dt.id);
+          postData.append('title', dt.title);
+          postData.append('location', dt.location);
+          postData.append('file', dt.picture, `${dt.id}.png`);
           fetch(
             'https://us-central1-pwagram-88a38.cloudfunctions.net/storePostData',
             {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-              },
-              body: JSON.stringify({
-                id: dt.id,
-                title: dt.title,
-                location: dt.location,
-                image:
-                  'https://firebasestorage.googleapis.com/v0/b/pwagram-88a38.appspot.com/o/for…lanet-1557138176.jpeg?alt=media&token=74094b64-ce8e-488d-ad69-772801cffe02'
-              })
+              body: postData
             }
           )
             .then(res => {
