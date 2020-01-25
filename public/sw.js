@@ -4,8 +4,8 @@ importScripts('/src/js/idb.js');
 // improt utility for all db functionality
 importScripts('/src/js/utility.js');
 
-const CACHE_STATIC_NAME = 'static-v25';
-const CACHE_DYNAMIC_NAME = 'dynamic-v6';
+const CACHE_STATIC_NAME = 'static-v1';
+const CACHE_DYNAMIC_NAME = 'dynamic-v1';
 const CACHED_STATIC_URLS = [
   '/',
   '/index.html',
